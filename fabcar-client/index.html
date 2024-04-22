@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="./styles.css">
+
+    <title>CashFlow Consortium - Hyperledger Fabric</title>
+</head>
+
+<body>
+    <div class="text-center">
+        <h1>
+            CashFlow Consortium
+        </h1>
+        <button onclick="getAll()">See associated Companies</button>
+        <span>||</span>
+        <button onclick="getAll()">See Banned Companies</button> 
+        <!-- Make the button dangerous w CSS -->
+        
+        <span>||</span>
+        <input id="search-input" type="text">
+        <button onclick="search()">Search</button>
+        <div id="show-car"></div>
+    </div>
+
+    <div class="text-center form-container">
+        <h3>Create Company</h3>
+        <form id="createForm" action="" name="createCar">
+            <div>
+                <label for="">Company ID (Key)</label>
+                <input name="key" />
+            </div>
+
+            <div>
+                <label for="">Country </label>
+                <!-- Country -->
+                <input name="make" />
+            </div>
+
+            <div>
+                <label for="">Company Name</label>
+                <!-- CompName -->
+                <input name="model" />
+            </div>
+
+            <div>
+                <label for="">Company Type</label>
+                <select id="companyType" name='color'>
+                    <option value='private' selected>private</option>
+                    <option value='public'>private</option>
+                    <option value='ngo'>ngo</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="">Employee Count</label>
+                <input name="owner" />
+                <!-- employeeCount -->
+            </div>
+
+
+            <div>
+                <button type="submit">Create</button>
+            </div>
+        </form>
+    </div>
+
+    <div class="text-center form-container">
+        <h3>Update Company Status</h3>
+        <form id="updateForm" action="" name="updateOwner">
+            <div>
+                <label for="">Company ID (Key)</label>
+                <input name="key" />
+            </div>
+            <h5>Only for Admin users: </h5>
+            <div>
+                <label for="">Company Reputation</label>
+                <select id="companyReputation" name="companyReputation">
+                    <option value="None" selected>None</option>
+                    <option value="poor">Poor</option>
+                    <option value="fair">Fair</option>
+                    <option value="good">Good</option>
+                    <option value="excellent">Excellent</option>
+                    <option value="banned">Banned</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="cashin flow"><br>Cash in Flow</label>
+                <input name="flowIn" />
+            </div>
+            <div >
+                <div>
+                    <label for="cashoutflow"><br>Cash out Flow</label>
+                    <input name="flowOut" />
+                </div>
+            <h5>For All users: </h5>
+            <div>
+                    <label for="">Change Company Name</label>
+                    <input name="name" />
+            </div>
+
+            <div>
+                <label for="">Updated Company Type</label>
+                <select id="companyType" name='type'>
+                    <option value='None' selected>None</option>
+                    <option value='private'>private</option>
+                    <option value='public'>private</option>
+                    <option value='ngo'>ngo</option>
+                </select>
+            </div>
+
+
+            <div>
+                <label for="">Updated Employee Count</label>
+                <input name="empCount" />
+            </div>
+
+                <div>
+                    <button type="submit">Update</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+
+        // CREATING NEW CAR
+        const createForm = document.getElementById('createForm')
+
+        // THIS IS AN EVENT LISTENER WHICH WILL RUN WHEN WE CLICK THE CREATE BUTTON
+        createForm.addEventListener("submit", function (event) {
+            event.preventDefault()
+            const bodyParam = new URLSearchParams(new FormData(createForm))
+
+            //CALLING CREATE API
+            fetch('http://localhost:3000/create', {
+                method: 'POST',
+                body: bodyParam
+            })
+                .then(res => {
+                    return res.json()
+                })
+                .then(parsedRes => {
+                    alert(parsedRes.message)
+                })
+                .catch(err => {
+                    console.error({ err })
+                })
+        });
+
+        // UPDATE: CHANGING CAR OWNER
+        const updateForm = document.getElementById('updateForm')
+
+        // THIS IS AN EVENT LISTENER WHICH WILL RUN WHEN WE CLICK THE UPDATE BUTTON
+        updateForm.addEventListener("submit", function (event) {
+            event.preventDefault()
+            const bodyParam = new URLSearchParams(new FormData(updateForm))
+
+            //CALLING UPDATE API
+            fetch('http://localhost:3000/update', {
+                method: 'POST',
+                body: bodyParam
+            })
+                .then(res => {
+                    if (res.status !== 200) {
+                        alert('Unable to update')
+                        return
+                    }
+                    return res.json()
+                })
+                .then(parsedRes => {
+                    alert(parsedRes.message)
+                    getAll()
+                })
+                .catch(err => {
+                    alert(err.message)
+                    console.error({ err })
+                })
+        });
+
+
+        //SEARCH DATA
+        function search() {
+            // extracting value from input field
+            const value = document.getElementById('search-input').value
+            getAll(value)
+        }
+
+        // GETTING ALL CAR DATA FROM API
+        function getAll(query) {
+            const api = query ? 'http://localhost:3000/get-car?key=' + query : 'http://localhost:3000/get-car'
+            fetch(api)
+                .then(res => {
+                    return res.json();
+                })
+                .then(parsedRes => {
+                    //let carMarkup = '';
+                    //parsedRes.forEach(item => {
+                    //    carMarkup = carMarkup +
+                    //        `<div class="car-item"> 
+                    //            <p>Key: ${item.Key}</p>
+                    //            <p>Made In: ${item.Record.make}</p>
+                    //            <p>Model: ${item.Record.model}</p>
+                    //            <p>Color: ${item.Record.color}</p>
+                    //            <p>Owner: ${item.Record.owner}</p>
+                    //        </div>`
+
+                    //Project stuff
+                    let companyMarkup = '';
+                        parsedRes.forEach(item => {
+                            companyMarkup = companyMarkup +
+                               `<div class="company-definition"> 
+                                    <p>Key: ${item.Key}</p>
+                                    <p>Country: ${item.Record.country}</p>
+                                    <p>Company Name: ${item.Record.CompName}</p>
+                                    <p>Company Type: ${item.Record.type}</p>
+                                    <p>Employee Count: ${item.Record.Empcount}</p>
+                                    <p>Company Reputation: ${item.Record.Reputation}</p>
+                                    <p>Cash In Flow: ${item.Record.cashInFlow}</p>
+                                    <p>Cash Out Flow: ${item.Record.cashOutFlow}</p>
+                                </div>`
+                        })
+                        // getting the html container with id=show-car
+                        const carContainer = document.getElementById('show-car')
+
+                        //CLEANING EXISTING CAR HTML NODE/ELEMENT
+                        while (carContainer.hasChildNodes()) {
+                            carContainer.removeChild(carContainer.firstChild);
+                        }
+
+                        // Adding new car data markup
+                        carContainer.insertAdjacentHTML('beforeend', companyMarkup)
+                    })
+                        .catch(err => {
+                            alert('Operation failed')
+                            console.error({ err })
+                        })
+                
+                    }
+                
+
+    </script>
+</body>
+
+</html>
